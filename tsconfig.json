@@ -2,7 +2,7 @@
   "include": ["./packages"],
   "compilerOptions": {
     "outDir": "./dist",
-    "target": "ES2016",
+    "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
     "esModuleInterop": true,

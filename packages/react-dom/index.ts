@@ -1,3 +1,10 @@
-import { isObject } from "../shared";
+import { createDOM } from "../react/src/vdom"
 
-console.log(isObject("wad"))
+function render(element : any,container : Node) {
+  const dom = createDOM(element)
+  container.appendChild(dom)
+}
+
+export {
+  render
+}

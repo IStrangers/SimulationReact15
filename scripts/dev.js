@@ -17,7 +17,7 @@ for(let i = 0; i < formats.length; i++) {
   const outfile = resolve(__dirname,`../dist/${target}/${target}.${format}.js`)
 
   build({
-    entryPoints: [resolve(__dirname,`../packages/${target}/index.ts`)],
+    entryPoints: [resolve(__dirname,`../packages/${target}/${pkg.main}`)],
     outfile,
     bundle: true,
     sourcemap: true,

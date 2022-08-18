@@ -100,6 +100,10 @@ function invokeFunctions(funs : Array<Function>) {
   }
 }
 
+function onlyOne(items : any) {
+  return isArray(items) ? items[0] : items
+}
+
 export {
   isObject,
   isNumber,
@@ -113,4 +117,5 @@ export {
   removeExtraSpaces,
   getLongestIncreasingSequence,
   invokeFunctions,
+  onlyOne,
 }
