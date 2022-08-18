@@ -1,5 +1,5 @@
-const TEXT = Symbol("TEXT")
-const ELEMENT = Symbol("ELEMENT")
+const TEXT = Symbol.for("TEXT")
+const ELEMENT = Symbol.for("ELEMENT")
 
 export {
   TEXT,

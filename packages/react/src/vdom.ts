@@ -32,7 +32,7 @@ function createNativeDOM(element : any) : HTMLElement {
   const { type,props,children } = element
   const dom = document.createElement(type)
   props && setProps(dom,props)
-  children && createNativeDOMChildren(dom,props.children)
+  children && createNativeDOMChildren(dom,children)
   return dom
 }
 

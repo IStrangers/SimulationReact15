@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev:react": "node scripts/dev.js react",
     "dev:react-dom": "node scripts/dev.js react-dom"
   },
   "keywords": [],
