@@ -104,6 +104,21 @@ function onlyOne(items : any) {
   return isArray(items) ? items[0] : items
 }
 
+function flatten(array : Array<any>) {
+  const flatted : Array<any> = []
+  function flat(items : Array<any>) {
+    items.forEach(item => {
+      if(isArray(item)) {
+        flat(item)
+      } else {
+        flatted.push(item)
+      }
+    })
+  }
+  flat(array)
+  return flatted
+}
+
 export {
   isObject,
   isNumber,
@@ -118,4 +133,5 @@ export {
   getLongestIncreasingSequence,
   invokeFunctions,
   onlyOne,
+  flatten,
 }

@@ -1,6 +1,6 @@
-import { onlyOne } from "../../shared"
+import { flatten, onlyOne } from "../../shared"
 import { addEventListener } from "../../shared/src/event"
-import { ELEMENT, TEXT } from "../../types"
+import { CLASS_COMPONENT, ELEMENT, FUNCTION_COMPONENT, TEXT } from "../../types"
 
 function ReactElement(nodeType : Symbol,type : any,key : any,ref : any,props : any,children : Array<any>) {
   const element = {
@@ -22,6 +22,10 @@ function createDOM(element : any) : Node {
     dom = document.createTextNode(element.content)
   } else if(nodeType === ELEMENT){
     dom = createNativeDOM(element)
+  } else if(nodeType === CLASS_COMPONENT){
+    dom = createClassComponentDOM(element)
+  } else if(nodeType === FUNCTION_COMPONENT){
+    dom = createFunctionComponentDOM(element)
   } else {
     dom = document.createComment(element.content ? element.content : "")
   }
@@ -32,12 +36,13 @@ function createNativeDOM(element : any) : HTMLElement {
   const { type,props,children } = element
   const dom = document.createElement(type)
   props && setProps(dom,props)
-  children && createNativeDOMChildren(dom,children)
+  children && createDOMChildren(dom,children)
   return dom
 }
 
-function createNativeDOMChildren(parentNode : Node,children : Array<any>) {
-  children && children.flat(Infinity).forEach(child => {
+function createDOMChildren(parentNode : Node,children : Array<any>) {
+  children && flatten(children).forEach((child,index) => {
+    child["mountIndex"] = index
     const childDOM = createDOM(child)
     parentNode.appendChild(childDOM)
   })
@@ -63,11 +68,31 @@ function setProp(dom : HTMLElement,key : string,value : any) {
   }
 }
 
+function createClassComponentDOM(element : any) {
+  const { type,props } = element
+  const componentInstance = new type(props)
+  const renderElement = componentInstance.render()
+  const dom = createDOM(renderElement)
+  renderElement.dom = dom
+  componentInstance.renderElement = renderElement
+  element.componentInstance = componentInstance
+  return dom
+}
+
+function createFunctionComponentDOM(element : any) {
+  const { type,props } = element
+  const renderElement = type(props)
+  const dom = createDOM(renderElement)
+  renderElement.dom = dom
+  element.renderElement = renderElement
+  return dom
+}
+
 export {
   ReactElement,
   createDOM,
   createNativeDOM,
-  createNativeDOMChildren,
+  createDOMChildren,
   setProps,
   setProp,
 }

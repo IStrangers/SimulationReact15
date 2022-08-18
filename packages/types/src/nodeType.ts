@@ -1,7 +1,11 @@
 const TEXT = Symbol.for("TEXT")
 const ELEMENT = Symbol.for("ELEMENT")
+const CLASS_COMPONENT = Symbol.for("CLASS_COMPONENT")
+const FUNCTION_COMPONENT = Symbol.for("FUNCTION_COMPONENT")
 
 export {
   TEXT,
   ELEMENT,
+  CLASS_COMPONENT,
+  FUNCTION_COMPONENT,
 }
