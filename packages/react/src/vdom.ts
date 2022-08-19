@@ -1,4 +1,4 @@
-import { flatten, onlyOne } from "../../shared"
+import { flatten, hasOwnProperty, onlyOne } from "../../shared"
 import { addEventListener } from "./event"
 import { CLASS_COMPONENT, ELEMENT, FUNCTION_COMPONENT, TEXT } from "../../types"
 
@@ -37,11 +37,11 @@ function createNativeDOM(element : any) : HTMLElement {
   const { type,props,children } = element
   const dom = document.createElement(type)
   props && setProps(dom,props)
-  children && createDOMChildren(dom,children)
+  children && createChildrenDOM(dom,children)
   return dom
 }
 
-function createDOMChildren(parentNode : Node,children : Array<any>) {
+function createChildrenDOM(parentNode : Node,children : Array<any>) {
   children && flatten(children).forEach((child,index) => {
     child["mountIndex"] = index
     const childDOM = createDOM(child)
@@ -103,18 +103,61 @@ function compareTwoElements(oldRenderElement : any,newRenderElement : any) {
     currentDOM.parentNode.replaceChild(newDOM,currentDOM)
     currentElement = newRenderElement
   } else {
-    
-    currentElement = newRenderElement
+    updateElement(oldRenderElement,newRenderElement)
   }
   return currentElement
+}
+
+function updateElement(oldElement : any,newElement : any) {
+  const currentDOM = newElement.dom = oldElement.dom
+  if(oldElement.nodeType === TEXT && newElement.nodeType === TEXT && oldElement.content !== newElement.content) {
+    currentDOM.textContent = newElement.content
+  } else if(oldElement.nodeType === ELEMENT) {
+    updateProps(currentDOM,oldElement.props,newElement.props)
+    updateChildrenElement(currentDOM,oldElement.children,newElement.children)
+  } else if(oldElement.nodeType === CLASS_COMPONENT) {
+    updateClassComponent(oldElement,newElement)
+  } else if(oldElement.nodeType === FUNCTION_COMPONENT) {
+    updateFunctionComponent(oldElement,newElement)
+  }
+}
+
+function updateProps(dom : HTMLElement,oldProps : any,newProps : any) {
+  for(let key in oldProps) {
+    if(hasOwnProperty(newProps,key)) {
+      dom.removeAttribute(key)
+    }
+  }
+  setProps(dom,newProps)
+}
+
+function updateChildrenElement(dom : HTMLElement,oldChildren : Array<any>,newChildren : Array<any>) {
+  
+}
+
+function updateClassComponent(oldElement : any,newElement : any) {
+  const componentInstance = oldElement.componentInstance
+  const nextProps = newElement.props
+  componentInstance.$updater(nextProps)
+}
+
+function updateFunctionComponent(oldElement : any,newElement : any) {
+  const oldRenderElement = oldElement.renderElement
+  const newRenderElement = newElement.type(newElement.props)
+  const currentElement = compareTwoElements(oldRenderElement,newRenderElement)
+  newElement.renderElement = currentElement
 }
 
 export {
   ReactElement,
   createDOM,
   createNativeDOM,
-  createDOMChildren,
+  createChildrenDOM,
   setProps,
   setProp,
   compareTwoElements,
+  updateElement,
+  updateProps,
+  updateClassComponent,
+  updateFunctionComponent,
 }
