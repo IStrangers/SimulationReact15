@@ -1,4 +1,5 @@
-import { isFunction } from "./utils"
+import { updaterQueue } from "./updater"
+import { isFunction } from "../../shared/src/utils"
 
 function addEventListener(dom : HTMLElement,eventType : string,listener : Function) {
   eventType = eventType.toLowerCase()
@@ -12,6 +13,7 @@ function dispatchEvent(event : Event) {
   let { type,target } = event
   const eventType = `on${type}`
   syntheticEvent = getSyntheticEvent(event)
+  updaterQueue.isPending = true
   while (target) {
     const eventStore = target["eventStore"]
     const listener = eventStore && eventStore[eventType]
@@ -23,6 +25,8 @@ function dispatchEvent(event : Event) {
   for(let key in syntheticEvent) {
     syntheticEvent[key] = undefined
   }
+  updaterQueue.isPending = false
+  updaterQueue.batchUpdate()
 }
 
 class SyntheticEvent {

@@ -1,5 +1,5 @@
 import { flatten, onlyOne } from "../../shared"
-import { addEventListener } from "../../shared/src/event"
+import { addEventListener } from "./event"
 import { CLASS_COMPONENT, ELEMENT, FUNCTION_COMPONENT, TEXT } from "../../types"
 
 function ReactElement(nodeType : Symbol,type : any,key : any,ref : any,props : any,children : Array<any>) {
@@ -29,6 +29,7 @@ function createDOM(element : any) : Node {
   } else {
     dom = document.createComment(element.content ? element.content : "")
   }
+  element.dom = dom
   return dom
 }
 
@@ -88,6 +89,26 @@ function createFunctionComponentDOM(element : any) {
   return dom
 }
 
+
+
+function compareTwoElements(oldRenderElement : any,newRenderElement : any) {
+  oldRenderElement = onlyOne(oldRenderElement)
+  newRenderElement = onlyOne(newRenderElement)
+  const currentDOM = oldRenderElement.dom
+  let currentElement = oldRenderElement
+  if(newRenderElement === null) {
+    currentDOM.parentNode.removeChild(currentDOM)
+  } else if(oldRenderElement.type !== newRenderElement.type) {
+    const newDOM = createDOM(newRenderElement)
+    currentDOM.parentNode.replaceChild(newDOM,currentDOM)
+    currentElement = newRenderElement
+  } else {
+    
+    currentElement = newRenderElement
+  }
+  return currentElement
+}
+
 export {
   ReactElement,
   createDOM,
@@ -95,4 +116,5 @@ export {
   createDOMChildren,
   setProps,
   setProp,
+  compareTwoElements,
 }
