@@ -13,6 +13,10 @@ class Component {
     this.nextProps = null
   }
 
+  static getDerivedStateFromProps(nextProps : any,oldState : any) {
+    return oldState
+  }
+
   render() {
   }
 
@@ -20,22 +24,38 @@ class Component {
     this.$updater.addState(partialState)
   }
 
+  componentWillMount() {
+  }
+
+  componentDidMount() {
+  }
+
+  componentWillReceiveProps(nextProps : any) {
+  }
+
   shouldComponentUpdate(nextProps : any,nextState : any) {
     return true
+  }
+
+  getSnapshotBeforeUpdate() {
   }
 
   componentWillUpdate() {
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(props : any,state : any,extraArgs : any) {
+  }
+
+  componentWillUnmount() {
   }
 
   forceUpdate() {
     this.componentWillUpdate()
+    const extraArgs = this.getSnapshotBeforeUpdate()
     const oldRenderElement = this["renderElement"]
     const newRenderElement = this.render()
     this["renderElement"] = compareTwoElements(oldRenderElement,newRenderElement)
-    this.componentDidUpdate()
+    this.componentDidUpdate(this.props,this.state,extraArgs)
   }
 }
 

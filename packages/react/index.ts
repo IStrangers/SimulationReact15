@@ -21,8 +21,12 @@ function createElement(type : any,config : any = {}, ...children : Array<any>) {
   return ReactElement(nodeType,type,key,ref,props,children)
 }
 
+function createRef() {
+  return { current: null }
+}
 
 export {
-  createElement,
   Component,
+  createElement,
+  createRef,
 }

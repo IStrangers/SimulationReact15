@@ -1,6 +1,7 @@
 import { flatten, hasOwnProperty, onlyOne } from "../../shared"
 import { addEventListener } from "./event"
 import { CLASS_COMPONENT, ELEMENT, FUNCTION_COMPONENT, TEXT } from "../../types"
+import { Component } from "./component"
 
 function ReactElement(nodeType : Symbol,type : any,key : any,ref : any,props : any,children : Array<any>) {
   const element = {
@@ -34,11 +35,18 @@ function createDOM(element : any) : Node {
 }
 
 function createNativeDOM(element : any) : HTMLElement {
-  const { type,props,children } = element
+  const { type,ref,props,children } = element
   const dom = document.createElement(type)
+  ref && setRef(dom,ref)
   props && setProps(dom,props)
   children && createChildrenDOM(dom,children)
   return dom
+}
+
+function setRef(current : Node | Component,ref : any) {
+  if(ref) {
+    ref.current = current
+  }
 }
 
 function createChildrenDOM(parentNode : Node,children : Array<any>) {
@@ -70,13 +78,16 @@ function setProp(dom : HTMLElement,key : string,value : any) {
 }
 
 function createClassComponentDOM(element : any) {
-  const { type,props } = element
+  const { type,ref,props } = element
   const componentInstance = new type(props)
+  setRef(componentInstance,ref)
+  componentInstance.componentWillMount()
   const renderElement = componentInstance.render()
   const dom = createDOM(renderElement)
   renderElement.dom = dom
   componentInstance.renderElement = renderElement
   element.componentInstance = componentInstance
+  componentInstance.componentDidMount()
   return dom
 }
 
@@ -136,7 +147,7 @@ let updateDepth = 0
 const diffQueue : Array<any> = []
 function updateChildrenElement(dom : HTMLElement,oldChildren : Array<any>,newChildren : Array<any>) {
   updateDepth++
-  diff(dom,oldChildren,newChildren)
+  diff(dom,flatten(oldChildren),flatten(newChildren))
   updateDepth--
   if(updateDepth === 0) {
     patch()
@@ -150,6 +161,10 @@ function diff(dom : HTMLElement,oldChildren : Array<any>,newChildren : Array<any
   for(let i = 0; i < newChildren.length; i++) {
     const newElement = newChildren[i]
     if(!newElement) {
+      const oldElement = oldChildrenElementsMap[i.toString()]
+      if(oldElement.componentInstance) {
+        oldElement.componentInstance.componentWillUnmount()
+      }
       continue
     }
     const newKey = newElement.key || i.toString()
@@ -236,7 +251,7 @@ function getNewChildrenElementsMap(oldChildrenElementsMap : any,newChildren : Ar
     const newKey = newElement.key || i.toString()
     const oldElement = oldChildrenElementsMap[newKey]
     if(canDeepCompare(oldElement,newElement)) {
-      compareTwoElements(oldElement,newElement)
+      updateElement(oldElement,newElement)
       newChildren[i] = oldElement
     }
     newChildrenElementsMap[newKey] = newChildren[i]
@@ -254,7 +269,9 @@ function canDeepCompare(oldElement : any,newElement :any) {
 function updateClassComponent(oldElement : any,newElement : any) {
   const componentInstance = oldElement.componentInstance
   const nextProps = newElement.props
-  componentInstance.$updater(nextProps)
+  componentInstance.componentWillReceiveProps(nextProps)
+  componentInstance.state = newElement.type.getDerivedStateFromProps(nextProps,componentInstance.state)
+  componentInstance.$updater.emitUpdate(nextProps)
 }
 
 function updateFunctionComponent(oldElement : any,newElement : any) {
@@ -271,6 +288,7 @@ export {
   createChildrenDOM,
   setProps,
   setProp,
+  setRef,
   compareTwoElements,
   updateElement,
   updateProps,
