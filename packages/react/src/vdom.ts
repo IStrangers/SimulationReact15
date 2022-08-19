@@ -88,6 +88,7 @@ function createClassComponentDOM(element : any) {
   componentInstance.renderElement = renderElement
   element.componentInstance = componentInstance
   componentInstance.componentDidMount()
+  componentInstance.isOverMount = true
   return dom
 }
 

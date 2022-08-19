@@ -6,11 +6,13 @@ class Component {
   public $updater
   public state : any
   public nextProps : any
+  public isOverMount : boolean
 
   constructor(public props : any) {
     this.$updater = new Updater(this)
     this.state = {}
     this.nextProps = null
+    this.isOverMount = false
   }
 
   static getDerivedStateFromProps(nextProps : any,oldState : any) {
@@ -50,6 +52,9 @@ class Component {
   }
 
   forceUpdate() {
+    if(!this.isOverMount) {
+      return
+    }
     this.componentWillUpdate()
     const extraArgs = this.getSnapshotBeforeUpdate()
     const oldRenderElement = this["renderElement"]
