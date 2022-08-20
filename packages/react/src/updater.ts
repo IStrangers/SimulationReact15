@@ -71,7 +71,7 @@ class Updater {
 function shouldUpdate(componentInstance : Component,nextProps : any,nextState : any) {
   componentInstance.props = nextProps
   componentInstance.state = nextState
-  if(!componentInstance.shouldComponentUpdate(nextProps,nextState)) {
+  if(!componentInstance.isOverMount || !componentInstance.shouldComponentUpdate(nextProps,nextState)) {
     return false
   }
   componentInstance.forceUpdate()

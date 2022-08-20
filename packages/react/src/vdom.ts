@@ -2,6 +2,7 @@ import { flatten, hasOwnProperty, onlyOne } from "../../shared"
 import { addEventListener } from "./event"
 import { CLASS_COMPONENT, ELEMENT, FUNCTION_COMPONENT, TEXT } from "../../types"
 import { Component } from "./component"
+import { updaterQueue } from "./updater"
 
 function ReactElement(nodeType : Symbol,type : any,key : any,ref : any,props : any,children : Array<any>) {
   const element = {

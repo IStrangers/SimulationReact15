@@ -52,9 +52,6 @@ class Component {
   }
 
   forceUpdate() {
-    if(!this.isOverMount) {
-      return
-    }
     this.componentWillUpdate()
     const extraArgs = this.getSnapshotBeforeUpdate()
     const oldRenderElement = this["renderElement"]
