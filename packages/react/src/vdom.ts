@@ -2,7 +2,7 @@ import { flatten, hasOwnProperty, onlyOne } from "../../shared"
 import { addEventListener } from "./event"
 import { CLASS_COMPONENT, ELEMENT, FUNCTION_COMPONENT, TEXT } from "../../types"
 import { Component } from "./component"
-import { updaterQueue } from "./updater"
+import { batchedUpdates } from "./updater"
 
 function ReactElement(nodeType : Symbol,type : any,key : any,ref : any,props : any,children : Array<any>) {
   const element = {
@@ -81,6 +81,7 @@ function setProp(dom : HTMLElement,key : string,value : any) {
 function createClassComponentDOM(element : any) {
   const { type,ref,props } = element
   const componentInstance = new type(props)
+  setContext(componentInstance,type)
   setRef(componentInstance,ref)
   componentInstance.componentWillMount()
   const renderElement = componentInstance.render()
@@ -88,9 +89,15 @@ function createClassComponentDOM(element : any) {
   renderElement.dom = dom
   componentInstance.renderElement = renderElement
   element.componentInstance = componentInstance
-  componentInstance.componentDidMount()
+  batchedUpdates(() => componentInstance.componentDidMount())
   componentInstance.isOverMount = true
   return dom
+}
+
+function setContext(componentInstance : Component,classType : any) {
+  if(classType.contextType) {
+    componentInstance.context = classType.contextType.Provider.value
+  }
 }
 
 function createFunctionComponentDOM(element : any) {
@@ -149,7 +156,7 @@ let updateDepth = 0
 const diffQueue : Array<any> = []
 function updateChildrenElement(dom : HTMLElement,oldChildren : Array<any>,newChildren : Array<any>) {
   updateDepth++
-  diff(dom,flatten(oldChildren),flatten(newChildren))
+  diff(dom,oldChildren,newChildren)
   updateDepth--
   if(updateDepth === 0) {
     patch()
@@ -269,7 +276,8 @@ function canDeepCompare(oldElement : any,newElement :any) {
 }
 
 function updateClassComponent(oldElement : any,newElement : any) {
-  const componentInstance = oldElement.componentInstance
+  const componentInstance = newElement.componentInstance = oldElement.componentInstance
+  setContext(componentInstance,oldElement.type)
   const nextProps = newElement.props
   componentInstance.componentWillReceiveProps(nextProps)
   componentInstance.state = newElement.type.getDerivedStateFromProps(nextProps,componentInstance.state)
@@ -291,6 +299,8 @@ export {
   setProps,
   setProp,
   setRef,
+  createClassComponentDOM,
+  createFunctionComponentDOM,
   compareTwoElements,
   updateElement,
   updateProps,

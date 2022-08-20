@@ -77,7 +77,15 @@ function shouldUpdate(componentInstance : Component,nextProps : any,nextState : 
   componentInstance.forceUpdate()
 }
 
+function batchedUpdates(fn : Function) {
+  updaterQueue.isPending = true
+  fn()
+  updaterQueue.isPending = false
+  updaterQueue.batchUpdate()
+}
+
 export {
   updaterQueue,
-  Updater
+  Updater,
+  batchedUpdates,
 }

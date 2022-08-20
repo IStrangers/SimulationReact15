@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="./react/react.iife.js"></script>
+  <script src="./react-dom/react-dom.iife.js"></script>
+  <script>
+    // const element = React.createElement("button",{
+    //   id: "sayHello",
+    //   onClick: function(e) {
+    //     e.persist()
+    //     setTimeout(function() {
+    //       console.log(e)
+    //     },1000)
+    //   },
+    // },
+    // "say",
+    // React.createElement("span",{
+    //   style: {color: "red"},
+    //   onClick: function(e) {
+    //     console.log(e)
+    //   }
+    // },"Hello"))
+    const refC = React.createRef()
+    class ClassComponent extends React.Component {
+      constructor(props) {
+        super(props)
+        this.setState({test:"test"})
+      }
+
+      shouldComponentUpdate(nextProps,nextState) {
+        debugger
+        return true
+      }
+
+      render() {
+        return React.createElement("input",{ type: "color" , t: this.state.test})
+      }
+
+    }
+    const element = React.createElement(ClassComponent,{id: "ClassComponent",ref : refC})
+    ReactDOM.render(element,document.getElementById("root"))
+    console.log(refC)
+  </script>
+</body>
+</html>

@@ -3,6 +3,7 @@ import { compareTwoElements } from "./vdom"
 
 class Component {
 
+  public context : any
   public $updater
   public state : any
   public nextProps : any

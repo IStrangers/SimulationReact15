@@ -14,7 +14,7 @@ const pkg = require(resolve(__dirname,`../packages/${target}/package.json`))
 const formats = pkg.buildOptions.formats
 for(let i = 0; i < formats.length; i++) {
   const format = formats[i]
-  const outfile = resolve(__dirname,`../test/${target}/${target}.${format}.js`)
+  const outfile = resolve(__dirname,`../dist/${target}/${target}.${format}.js`)
 
   build({
     entryPoints: [resolve(__dirname,`../packages/${target}/${pkg.main}`)],
